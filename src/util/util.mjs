@@ -11,6 +11,9 @@ function interpolateString(str, substitutes) {
 }
 
 async function handleCallbacks(client, event, data, {platform, vtubers}) {
+
+    console.log("Data in handleCallbacks: ", event, data, platform, vtubers);
+
     // fetch all guilds. There's *probably* a better way of doing this, but it's gotta work for now.
     await client.guilds.fetch(); 
     for (const guild of client.guilds.cache.values()) {

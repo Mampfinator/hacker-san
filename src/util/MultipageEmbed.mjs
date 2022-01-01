@@ -33,6 +33,9 @@ export class MultipageEmbed {
             ...((this.pages.length > 1 && this.index > 0) ? [BACK_BUTTON] : []),
             ...((this.pages.length > 1 && this.index < (this.pages.length - 1)) ? [FORWARD_BUTTON] : [])
         ]
+
+        if (components.length === 0) return [];
+
         return [new MessageActionRow({
             components
         })];

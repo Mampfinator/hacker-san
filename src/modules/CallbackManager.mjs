@@ -58,8 +58,19 @@ class CallbackManager extends EventEmitter {
         let settings = await this.client.settings.fetch(guild.id);
         let callbacks = new Collection();
         for (const callback of settings.get("callbacks")) callbacks.set(callback, true); // construct the Map in the order the settings dictate
-        // set the values of the Map
-        let dbCallbacks = await this.db.collection("callbacks").find({guild: guild.id, trigger, vtuber: vtubers});
+
+        const query = {
+            guild: guild.id ?? guild,
+            trigger,
+            vtuber: {
+                $in: vtubers
+            }
+        }
+        console.log(`Query in CallbackManager#execute:`, query);
+
+        let dbCallbacks = await this.db.collection("callbacks").find(query);
+        if (await dbCallbacks.count() > 0) console.log(`Found callbacks: ${dbCallbacks}.`);
+
         await dbCallbacks.forEach(callback => {callbacks.set(callback._id, callback)});
 
         for (const callback of callbacks.filter(v => typeof v !== "boolean").values()) {
