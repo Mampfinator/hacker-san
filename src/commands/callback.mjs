@@ -23,7 +23,12 @@ export default new SlashCommand(
                     ["upload", "upload"],
                     ["moved", "moved"]
                 ]))
-            .addStringOption(option => option.setName("vtuber").setDescription("VTuber this action should trigger on.").setRequired(true))
+            .addStringOption(option => {
+                //! @discordjs/builders - SlashCommandBuilder doesn't support autocomplete in the version I have to rely on thanks to improper ES module import config on their part. So manual adding is required.
+                option = option.setName("vtuber").setDescription("VTuber this action should trigger on.").setRequired(true)
+                option.autocomplete = true;
+                return option;
+            })
             .addChannelOption(option => option.setName("channel").setDescription("Channel this callback operates on/in.").setRequired(true)))
 
 
@@ -97,24 +102,18 @@ export default new SlashCommand(
 
         if (subcommandGroup === "add") {
             await interaction.deferReply();
-            console.log("adding command.")
 
             let vtuber = options.get("vtuber").value;
-            // TODO: check if vtuber is actually in Calenddar.
-            // TODO: Push Calenddar update to actually allow for that. :POLmao:
-            //if (!(await client.calenddar.vtubers.get(vtuber)) && !(await client.calenddar.vtubers.search(vtuber))) return await interaction.reply(`Could not find VTuber ${vtuber} anywhere on Calenddar. Contact the bot author to add it.`);
+            if (!(await client.calenddar.getVtuberById(vtuber)) && !(await client.calenddar.search(vtuber, 1))) return await interaction.reply(`Could not find VTuber ${vtuber} anywhere on Calenddar. Contact the bot author to add it.`);
 
             let trigger = options.get("trigger").value;
             let channel = options.get("channel").channel;
 
-            // :NiaLazy:
-            console.log(callbacks.types);
             let {makeOptions} = callbacks.types.get(subcommand) ?? {};
             console.log(makeOptions);
             let restOptions = makeOptions ? makeOptions(interaction) : {};
 
             let callback = {type: subcommand, trigger, vtuber, channel: channel.id, guild: interaction.guildId, ...restOptions};
-            console.log("Generated callback:", callback);
 
             let _id = await callbacks.add(callback);
             let settings = await client.settings.fetch(interaction.guildId);
@@ -146,7 +145,7 @@ export default new SlashCommand(
 
             await interaction.reply({embeds: [
                 embed
-            ]})
+            ]});
         }
     }
 );

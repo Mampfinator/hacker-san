@@ -10,12 +10,11 @@ function interpolateString(str, substitutes) {
     return str;
 }
 
-async function handleCallbacks(client, eventName, eventData) {
-    let {vtuber} = eventData
-    vtuber = vtuber?.id ?? vtuber;
-    await client.guilds.fetch();
+async function handleCallbacks(client, event, data, {platform, vtubers}) {
+    // fetch all guilds. There's *probably* a better way of doing this, but it's gotta work for now.
+    await client.guilds.fetch(); 
     for (const guild of client.guilds.cache.values()) {
-        client.callbacks.execute(guild, {data: eventData, event: eventName}, vtuber);
+        client.callbacks.execute(guild, event, data, vtubers, platform);
     }
 }
 

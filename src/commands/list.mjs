@@ -20,6 +20,10 @@ let buildEmbed = async (interaction) => {
             if (interaction.options.get("type")) fetchOptions["type"] = interaction.options.get("type").value;
             let callbacks = await interaction.client.callbacks.fetch(fetchOptions);
             let description = callbacks.map(callback => callbackToString(callback)).join("\n");
+            if (description === "") {
+                console.log(callbacks);
+                description = "No callbacks found!";
+            }
             embed.setDescription(description);
             break;
 
@@ -58,7 +62,7 @@ export default new SlashCommand(
         // fix things here
         //! @discordjs/builders: SlashCommandBuilder#addSubcommand(Group) doesn't properly assign types in v0.7, and is broken for ESModule imports in v0.8^.
         scb.options[0].type = 1;
-        
+
         return scb;
     },
     async () => true,
@@ -67,6 +71,7 @@ export default new SlashCommand(
      */
     async (interaction, command) => {
         let embed = await buildEmbed(interaction);
-        await interaction.reply({embeds: [embed]});
+
+        await interaction.reply({embeds: [embed]}).catch((error) => console.error(error));
     }
 );

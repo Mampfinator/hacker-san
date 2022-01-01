@@ -61,17 +61,15 @@ class CallbackManager extends EventEmitter {
      * @param {object} event - event as received from the API
      * @param {string} vtuber
      */
-    async execute(guild, event, vtuber) {
+    async execute(guild, trigger, data, vtubers, platform) {
 
-        console.log(guild?.id, event, vtuber);
+        console.log(guild?.id, trigger, data, vtubers);
 
         let settings = await this.client.settings.fetch(guild.id);
-
-        let trigger = event.event, {data} = event;
         let callbacks = new Collection();
         for (const callback of settings.get("callbacks")) callbacks.set(callback, true); // construct the Map in the order the settings dictate
         // set the values of the Map
-        let dbCallbacks = await this.db.collection("callbacks").find({guild: guild.id, trigger, vtuber});
+        let dbCallbacks = await this.db.collection("callbacks").find({guild: guild.id, trigger, vtuber: vtubers});
         console.log("Found documents: ", await dbCallbacks.count());
         await dbCallbacks.forEach(callback => {callbacks.set(callback._id, callback); console.log("overwritten: ", callback._id)});
 

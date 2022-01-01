@@ -1,4 +1,5 @@
 import { Client, CommandInteraction } from "discord.js"
+import {InteractionHandlers} from "./interaction-handlers/index.mjs";
 
 export default {
     name: "interactionCreate",
@@ -8,13 +9,13 @@ export default {
      * @param {Client} client 
      */
     async execute(interaction, client) {
-        let handlers = [client.commands]; 
+        let handlers = [...InteractionHandlers, client.commands]; 
 
         for (const handler of handlers) {
             try {
                 var result = await handler.handle(interaction)
-            } catch {
-                console.log("Handler encountered an error: ", handler);
+            } catch (error) {
+                console.error("Handler encountered an error: ", handler, error);
             }
             // break once we've found the right interaction handler 
             if (typeof result !== "boolean" || result === true) break;

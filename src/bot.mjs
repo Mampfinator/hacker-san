@@ -4,26 +4,12 @@ config();
 import {Client, Intents} from "discord.js";
 import { MongoClient, Db } from "mongodb";
 
-//import * as configOptions from "./config.json";
-
-import {SlashCommandManager, SettingsManager, CallbackManager, Calenddar} from "./modules/index.mjs";
+import {SlashCommandManager, SettingsManager, CallbackManager, CalenddarClient} from "./modules/index.mjs";
 
 import {dirname} from "path";
 import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-/**
- * @typedef {object} CustomClient
- * @property {SlashCommandManager} commands
- * @property {SettingsManager} settings
- * @property {Calenddar} calenddar
- * @property {Db} db
- * @property {CallbackManager} callbacks
- */
-
-/**
- * @type {Client & CustomClient}
- */
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_WEBHOOKS]
 });
@@ -38,20 +24,24 @@ import * as calenddarEvents from "./events/calenddar/index.mjs";
     client.commands = new SlashCommandManager(client);
     client.settings = new SettingsManager(client);
     client.callbacks = new CallbackManager(client);
-    client.calenddar = new Calenddar();
+    client.calenddar = new CalenddarClient();
 
+    // add slash commands
     for (const command of Object.values(commands)) {
         client.commands.add(command);
     }
 
+    // add client event listeners
     for (const event of Object.values(events)) {
         client[event.once ? "on" : "once"](event.name, (...args) => {event.execute(...args, client)});
     }
 
+    // add calenddar event listeners
     for (const event of Object.values(calenddarEvents)) {
         client.calenddar.on(event.name, (...args) => {event.execute(...args, client)});
     }
 
+    // add callback types
     for (const callback of Object.values(callbacks)) {
         client.callbacks.addType(callback);
     }
