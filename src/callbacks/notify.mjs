@@ -3,8 +3,6 @@ import {interpolateString} from "../util/util.mjs";
 export default {
     name: "notify",
     async execute(client, callback, data) {
-        
-        console.log(data);
         let channel = await client.channels.fetch(callback.channel);
         let substitutions = {
             channel: channel.toString(),

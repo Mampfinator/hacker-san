@@ -38,7 +38,7 @@ import * as calenddarEvents from "./events/calenddar/index.mjs";
 
     // add calenddar event listeners
     for (const event of Object.values(calenddarEvents)) {
-        client.calenddar.on(event.name, (...args) => {event.execute(...args, client)});
+        client.calenddar.on(event.name, (...args) => {event.execute(client, ...args)});
     }
 
     // add callback types

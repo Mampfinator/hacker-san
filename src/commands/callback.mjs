@@ -51,7 +51,7 @@ export default new SlashCommand(
                 /* rename command */
                 .addSubcommand(rename => 
                     setDefaultOptions(rename).setName("rename").setDescription("Rename the target channel.")
-                    .addStringOption(option => option.setName("name").setDescription("The channel's new name."))
+                    .addStringOption(option => option.setName("name").setDescription("The channel's new name.").setRequired(true))
             )
             return subGroup;
         })
@@ -110,7 +110,6 @@ export default new SlashCommand(
             let channel = options.get("channel").channel;
 
             let {makeOptions} = callbacks.types.get(subcommand) ?? {};
-            console.log(makeOptions);
             let restOptions = makeOptions ? makeOptions(interaction) : {};
 
             let callback = {type: subcommand, trigger, vtuber, channel: channel.id, guild: interaction.guildId, ...restOptions};

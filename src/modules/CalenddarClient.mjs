@@ -1,22 +1,9 @@
-import fetch from "node-fetch";
 import WebSocket from "ws";
 import EventEmitter from "events";
-import {GraphQLClient, request, gql} from "graphql-request"
+import {GraphQLClient} from "graphql-request"
 
 /**
- * @param {object} caller 
- * @param {Function} func 
- * @returns {Function}
- */
-let wrap = (caller, func) => (...args) => func.apply(caller, args);
-let wrapObject = (caller, obj) => {
-    let newObj = {};
-    for (const [key, func] of Object.entries(obj)) newObj[key] = wrap(caller, func);
-    return newObj;
-}
-
-/**
- * Calenddar API Client.
+ * [Calenddar](https://github.com/Mampfinator/calenddar) API Client.
  */
 export default class CalenddarClient extends EventEmitter {
     constructor(options) {
@@ -33,9 +20,7 @@ export default class CalenddarClient extends EventEmitter {
          */
         this.ws = new WebSocket("wss://api.calenddar.de");
         this.gql = new GraphQLClient("https://api.calenddar.de/graphql");
-
-
-
+        
         this.ws.on("message", message => {
             try {
                 message = JSON.parse(message);

@@ -19,7 +19,7 @@ async function handleCallbacks(client, event, data, {platform, vtubers}) {
 }
 
 function callbackToString(callback) {
-    let str = `**ID**: \`${callback._id ?? callback.id}\`\n**Type**: ${callback.type} \t\t|\t\t **Trigger**: ${callback.trigger}\n**Channel**: <#${callback.channel}>\n`
+    let str = `**ID**: \`${callback._id ?? callback.id}\`\n**Type**: ${callback.type} \t\t|\t\t **Trigger**: ${callback.trigger}\n**Channel**: <#${callback.channel}> \t\t|\t\t **VTuber**: \`${callback.vtuber}\`\n `
     switch (callback.type) {
         case "echo": 
             str+=`**Message**: ${callback.message}\n`

@@ -32,19 +32,13 @@ class CallbackManager extends EventEmitter {
      * @param {object} callback 
      */
     async add(callback) {
-        console.log("Adding callback to database.");
         let exists = true, _id;
         while (exists) {
             _id = uuid()
-            console.log(`Trying uuid ${_id}...`);
             // make absolutely sure there are no ID overlaps
             exists = await this.db.collection("callbacks").findOne({_id});
         }
-
-        console.log("Success.");
         callback._id = _id;
-
-        console.log(callback);
 
         this.db.collection("callbacks").insertOne(callback);
 
@@ -61,25 +55,18 @@ class CallbackManager extends EventEmitter {
      * @param {object} event - event as received from the API
      * @param {string} vtuber
      */
-    async execute(guild, trigger, data, vtubers, platform) {
-
-        console.log(guild?.id, trigger, data, vtubers);
-
+    async execute(guild, trigger, data, vtubers) {
         let settings = await this.client.settings.fetch(guild.id);
         let callbacks = new Collection();
         for (const callback of settings.get("callbacks")) callbacks.set(callback, true); // construct the Map in the order the settings dictate
         // set the values of the Map
         let dbCallbacks = await this.db.collection("callbacks").find({guild: guild.id, trigger, vtuber: vtubers});
-        console.log("Found documents: ", await dbCallbacks.count());
-        await dbCallbacks.forEach(callback => {callbacks.set(callback._id, callback); console.log("overwritten: ", callback._id)});
-
-        console.log(this.types);
-        console.log(callbacks);
+        await dbCallbacks.forEach(callback => {callbacks.set(callback._id, callback)});
 
         for (const callback of callbacks.filter(v => typeof v !== "boolean").values()) {
             try {await this.types.get(callback.type).execute(this.client, callback, data);}
             catch(error) {
-                console.log(error);
+                console.error(error);
             }
         }
     }
@@ -96,7 +83,6 @@ class CallbackManager extends EventEmitter {
      * @returns 
      */
     async fetch(fetchOptions) {
-        console.log(fetchOptions);
         let order = new Map((await this.client.settings.fetch(fetchOptions.guild)).get("callbacks")?.map(id => [id, true]));
         let pointer = await this.db.collection("callbacks").find(fetchOptions);
         await pointer.forEach(callback => order.set(callback._id, callback));
@@ -108,11 +94,8 @@ class CallbackManager extends EventEmitter {
         let callback = await this.db.collection("callbacks").findOne({_id});
         if (!callback) return false;
         await this.db.collection("callbacks").deleteOne({_id});
-
         let settings = await this.client.settings.fetch(callback.guild);
-
         await settings.set("callbacks", settings.get("callbacks")?.filter(id => id !== _id));
-
         return callback;
     }
 }

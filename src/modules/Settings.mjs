@@ -54,7 +54,6 @@ class Settings {
             await this.db.collection("settings").insertOne({guild: this.id});
             await this.db.collection("settings").findOne({guild: this.id});
         }
-        console.log(data);
         this.build(data);
         this.manager.cache.set(this.id, this);
     }
@@ -87,7 +86,6 @@ class Settings {
             if (this.manager.specialOptions.has(option)) value = this.manager.specialOptions.get(option).saver(value);
             struct[option] = value; 
         }
-
         await this.db.collection("settings").updateOne({guild: this.id}, {$set: struct})
     }
 }

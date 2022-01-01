@@ -2,33 +2,47 @@ import { SlashCommand } from "../modules/index.mjs";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { callbackToString } from "../util/util.mjs";
+import { MultipageEmbed } from "../util/MultipageEmbed.mjs";
 
 /**
  * @param {CommandInteraction} interaction 
- * @returns {Promise<MessageEmbed>}
+ * @returns {Promise<MultipageEmbed>}
  */
 let buildEmbed = async (interaction) => {
-    let settings = await interaction.guild.client.settings.fetch(interaction.guild.id);
+    //let settings = await interaction.guild.client.settings.fetch(interaction.guild.id);
     let target = interaction.options.getSubcommand();
 
-    let embed = new MessageEmbed().setColor("AQUA");
+    let embed = new MultipageEmbed();
     switch(target) {
         case "callbacks":
-            let fetchOptions = {guild: interaction.guild.id};
-            if (interaction.options.get("vtuber")) fetchOptions["vtuber"] = interaction.options.get("vtuber").value;
-            if (interaction.options.get("trigger")) fetchOptions["trigger"] = interaction.options.get("trigger").value;
-            if (interaction.options.get("type")) fetchOptions["type"] = interaction.options.get("type").value;
-            let callbacks = await interaction.client.callbacks.fetch(fetchOptions);
-            let description = callbacks.map(callback => callbackToString(callback)).join("\n");
-            if (description === "") {
-                console.log(callbacks);
-                description = "No callbacks found!";
+            const perPage = 5;
+            const fetchOptions = {};
+            const fillIfExists = (field) => {
+                if (interaction.options.get(field)) fetchOptions[field] = interaction.options.get(field).value; 
             }
-            embed.setDescription(description);
+
+            fillIfExists("vtuber");
+            fillIfExists("trigger");
+            fillIfExists("type");
+            fetchOptions.guild = interaction.guild.id;
+
+            const callbacks = await interaction.client.callbacks.fetch(fetchOptions);
+
+            const pages = [];
+
+            callbacks.forEach((callback, index) => {
+                const page = Math.floor(index/perPage)
+                if (!pages[page]) pages[page] = new MessageEmbed().setColor("AQUA").setTitle(`Callbacks - ${page+1}/${Math.ceil(callbacks.length/perPage)}`);
+                pages[page].addField(
+                    `Callback #${index+1}`,
+                    callbackToString(callback)
+                );
+            });
+            embed.add(...pages);
             break;
 
         default: 
-            embed.setDescription(`Could not find list target ${target}. Please contact the bot author.`);
+            embed.add(new MessageEmbed().setDescription(`Could not find list target ${target}. Please contact the bot author.`));
             break;
     }
     return embed;
@@ -43,7 +57,11 @@ export default new SlashCommand(
     scb => {
         scb = scb.setDescription("List everything!")
             .addSubcommand(s => s.setName("callbacks").setDescription("List all registered callbacks.")
-                .addStringOption(o => o.setName("vtuber").setDescription("Which VTuber's callbacks to retrieve. Defaults to all."))
+                .addStringOption(o => {
+                    o = o.setName("vtuber").setDescription("Which VTuber's callbacks to retrieve. Defaults to all.")
+                    o.autocomplete = true;
+                    return o;
+                })
                 .addStringOption(o => o.setName("type").setDescription("Which types to list. Defaults to all.").addChoices([
                     ["echo", "echo"],
                     ["lock", "lock"],
@@ -71,7 +89,6 @@ export default new SlashCommand(
      */
     async (interaction, command) => {
         let embed = await buildEmbed(interaction);
-
-        await interaction.reply({embeds: [embed]}).catch((error) => console.error(error));
+        await embed.send(interaction);
     }
 );
