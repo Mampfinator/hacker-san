@@ -13,7 +13,6 @@ import { Collection } from "@discordjs/collection";
 /**
  * @class
  */
-// TODO: Add support for CallbackHelper.buildParameters to streamline slash command creation.
 class CallbackManager extends EventEmitter {
     /**
      * @type {Map<string, CallbackHelper>}
