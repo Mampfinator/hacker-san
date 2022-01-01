@@ -70,8 +70,6 @@ class SlashCommandManager {
 
         if (await command.canExecute(interaction)) command.execute(interaction, command);
         else {
-            // TODO: Add option to SlashCommandManager to set a default command execution denied message
-            // TODO: Add a permission denied hint to `SlashCommand` somewhere. 
             await (interaction.replied ? interaction.editReply("You don't have the permissions to do that!") : interaction.reply("You don't have the permissions to do that!"));
         }
     }
