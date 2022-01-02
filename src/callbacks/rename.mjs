@@ -1,8 +1,7 @@
 export default {
     name: "rename",
     async execute(client, callback) {
-        let channel = await client.guilds.fetch(callback.channel);
-        // Guild ID = @everyone role ID for that guild
+        let channel = await client.channels.fetch(callback.channel);
         await channel.setName(callback.name);
     },
     makeOptions(interaction) {
