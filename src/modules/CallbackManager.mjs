@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 import {Db} from "mongodb";
-import {Guild} from "discord.js";
+import {DiscordAPIError, Guild} from "discord.js";
 import uuid from "uuid";
 import { Collection } from "@discordjs/collection";
 /**
@@ -74,10 +74,11 @@ class CallbackManager extends EventEmitter {
         await dbCallbacks.forEach(callback => {callbacks.set(callback._id, callback)});
 
         for (const callback of callbacks.filter(v => typeof v !== "boolean").values()) {
-            try {await this.types.get(callback.type).execute(this.client, callback, data);}
-            catch(error) {
-                console.error(error);
-            }
+            await this.types.get(callback.type).execute(this.client, callback, data).catch(error => 
+                {
+                    if (!(error instanceof DiscordAPIError)) console.error(error);
+                }
+            )
         }
     }
 
