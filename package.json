@@ -1,0 +1,24 @@
+{
+  "name": "hacker-san-v2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/hacker-san.ts",
+  "scripts": {
+    "start": "ts-node src/hacker-san",
+    "dry-run": "ts-node src/hacker-san --no-login --no-commands"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/builders": "^0.11.0",
+    "command-line-args": "^5.2.0",
+    "discord.js": "^13.5.0",
+    "dotenv": "^10.0.0",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.41"
+  },
+  "devDependencies": {
+    "@types/command-line-args": "^5.2.0"
+  }
+}
