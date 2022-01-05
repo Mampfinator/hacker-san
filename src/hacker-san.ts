@@ -1,22 +1,28 @@
-import "./polyfills";
-
-import {Client, ClientOptions, Intents, Interaction} from "discord.js";
+import { Client, ClientOptions } from "discord.js";
 import { SlashCommandManager } from "./slash-commands/SlashCommandManager";
-import { EventLoader } from "./events/EventLoader";
-import { BotEvents } from "./events/bot-events";
 import { Connection, createConnection } from "typeorm";
+import { CallbackManager } from "./callbacks/CallbackManager";
+import type { HackerSanOptions } from "./command-line-optionts"; 
 
 export class HackerSan extends Client {
     readonly commands: SlashCommandManager;
     readonly settings?: unknown;
-    readonly callbacks?: unknown;
+    readonly callbacks: CallbackManager;
     connection?: Connection;
     
-    constructor(options: ClientOptions) {
+    private readonly noCommands?: boolean;
+
+
+    constructor(options: ClientOptions & HackerSanOptions) {
         super(options);
         this.commands = new SlashCommandManager(this);
+        this.callbacks = new CallbackManager(this);
         // this.settings = new SettingsManager(this);
-        // this.callbacks = new CallbacksManager(this);
+        this.on("interactionCreate", interaction => {
+            this.commands.handle(interaction);
+        });
+
+        this.noCommands = options["no-commands"];
     }
 
     async login(token?: string) {
@@ -29,38 +35,9 @@ export class HackerSan extends Client {
         });
 
         await this.application?.fetch();
-        await this.commands.register();
+        if (!this.noCommands) await this.commands.register();
         //await this.settings.sync();
 
         return token;
     }
 }
-
-const client = new HackerSan({
-    intents: [
-        Intents.FLAGS.GUILDS, 
-        Intents.FLAGS.DIRECT_MESSAGES,
-        Intents.FLAGS.GUILD_WEBHOOKS
-    ]
-});
-new EventLoader().load(client, BotEvents, [client]);
-
-
-client.commands.test({
-    isCommand() {return true},
-    commandName: "list",
-    reply(response: any) {
-        console.log("Response: ", response);
-    },
-    options: {
-        getSubcommand() {
-            return "callbacks";
-        },
-        get(option: string) {
-            
-        }
-    }
-});
-
-import {CommandLineOptions} from "./command-line-optionts"; 
-if (!CommandLineOptions["no-login"]) client.login();

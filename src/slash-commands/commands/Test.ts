@@ -1,11 +1,11 @@
 import { CommandInteraction } from "discord.js";
-import { ISlashCommand, SlashCommand } from "../SlashCommand";
+import { SlashCommand } from "../SlashCommand";
 
 @SlashCommand({
     name: "test",
-    builder: builder => builder.setDescription("Test command to see if my @SlashCommand decorator works.")
+    description: "Test Command"
 })
-export class TestCommand implements ISlashCommand {
+export class Test {
     constructor() {}
 
     async execute(interaction: CommandInteraction): Promise<string> {

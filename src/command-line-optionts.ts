@@ -5,8 +5,22 @@ const definitions : OptionDefinition[] = [
     {name: "no-commands", alias: "c", type: Boolean}
 ];
 
-export const CommandLineOptions = parseArgs(definitions) as {
-    "no-login": boolean;
-    "no-commands": boolean;
-    _unknown: [];
+var parsedOptions; 
+try {
+    parsedOptions = parseArgs(definitions); 
+} catch {
+    parsedOptions = {};
+}
+export interface HackerSanOptions {
+    /**
+     * Used to skip HackerSan#login. 
+     */
+    "no-login"?: boolean;
+
+    /**
+     * Skip calling CommandManager#register in HackerSan#login.
+     */
+    "no-commands"?: boolean;
+    _unknown?: [];
 };
+export const CommandLineOptions = parsedOptions as HackerSanOptions;

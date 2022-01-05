@@ -1,17 +1,12 @@
 import { HackerSan } from "../../hacker-san";
-import { Callback, ICallback } from "../Callback";
+import { Callback } from "../Callback";
 import { DbCallback } from "../DbCallback";
 
 @Callback({
     name: "echo",
-    description: "Send a message!",
-    customOptions: command => command.addStringOption(message => message
-        .setName("message").setDescription("Message to send")),
-    optionTransformer: (interaction) => ({
-        message: interaction.options.get("message")?.value
-    })
+    description: "Send a message!"
 })
-export class Echo implements ICallback {
+export class Echo {
     async execute(client: HackerSan, callback: DbCallback): Promise<void> {
         const channel = await client.channels.fetch(callback.channel);
     }

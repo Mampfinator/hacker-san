@@ -2,3 +2,7 @@ node_modules
 debug
 .env
 package-lock.json
+
+# istanbul things:
+.nyc_output
+coverage/

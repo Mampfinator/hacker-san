@@ -1,8 +1,7 @@
-import { CallbackCommand } from "./callback/CallbackCommand"
-import { ListCommand } from "./ListCommand"
-import { TestCommand } from "./TestCommand"
-export const Commands = [
-    TestCommand,
+import {CallbackCommand} from "./callback/CallbackCommand"
+import {List} from "./List"
+
+export const SlashCommands = [
     CallbackCommand,
-    ListCommand
+    List
 ]
