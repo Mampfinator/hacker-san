@@ -34,7 +34,7 @@ export class CallbackManager {
         this.callbacks = new Map([...callbacks].map(callback => [callback.name, callback]));
     }
 
-    private async processPreExecute(notification: CalenddarNotification<any, any>) : Promise<Map<string, any>> {
+    private async processPreExecute(notification: CalenddarNotification) : Promise<Map<string, any>> {
         const data = new Map();
         for (const callback of [...this.callbacks.values()].filter(c => c.preExecute)) {
             data.set(callback.name, await callback.preExecute(this.client, notification));
@@ -44,7 +44,7 @@ export class CallbackManager {
     }
 
 
-    async handle(notification: CalenddarNotification<any, any>) {
+    async handle(notification: CalenddarNotification) {
         const {event, vtubers, platform, data} = notification;
 
         const callbacks = await DbCallback.find({where: {trigger: event, vtuber: {$in: {vtubers}}}});
@@ -77,7 +77,7 @@ export class CallbackManager {
         await this.executeInSequence(sorted, notification);
     }
 
-    async executeInSequence(preSorted: SortedCallbacks[], notifcation: CalenddarNotification<any, any>) {
+    async executeInSequence(preSorted: SortedCallbacks[], notifcation: CalenddarNotification) {
         const preExecuteData = await this.processPreExecute(notifcation);
         
         for (const {guild, sortedCallbacks} of preSorted) {
@@ -98,7 +98,7 @@ export class CallbackManager {
     }
 
 
-    async execute(callback: DbCallback, notification: CalenddarNotification<any, any>, preExecuteData?: any) {
+    async execute(callback: DbCallback, notification: CalenddarNotification, preExecuteData?: any) {
         const {type} = callback;
         const callbackType = this.callbacks.get(type);
         if (!callbackType) throw new UnknownCallbackTypeError(type);

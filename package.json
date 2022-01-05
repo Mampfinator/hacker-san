@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node src/index",
     "dry-run": "ts-node src/index --no-login --no-commands",
-    "test": "nyc --reporter=html mocha --config ./.mocharc.yaml",
+    "test": "npx nyc --reporter=html mocha --config ./.mocharc.yaml",
     "test:nocoverage": "mocha --config ./.mocharc.yaml"
   },
   "keywords": [],

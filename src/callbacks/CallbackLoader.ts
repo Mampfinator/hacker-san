@@ -8,8 +8,8 @@ import { HackerSan } from "../hacker-san";
 
 export interface Callback {
     name: string;
-    execute: (client: HackerSan, notification: CalenddarNotification<any, any>, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
-    preExecute: (client: HackerSan, notification: CalenddarNotification<any, any>) => any;
+    execute: (client: HackerSan, notification: CalenddarNotification, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
+    preExecute: (client: HackerSan, notification: CalenddarNotification) => any;
 }
 
 export class CallbackLoader {

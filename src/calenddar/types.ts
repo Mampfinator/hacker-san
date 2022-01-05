@@ -1,4 +1,4 @@
-export interface CalenddarNotification<EventType, NotificationPayload> {
+export interface CalenddarBaseNotification<EventType, NotificationPayload> {
     vtubers: string[];
     data: NotificationPayload;
     platform: "twitch" | "youtube";
@@ -6,7 +6,7 @@ export interface CalenddarNotification<EventType, NotificationPayload> {
 }
 
 
-export interface PostNotification extends CalenddarNotification<"post", {
+export interface PostNotification extends CalenddarBaseNotification<"post", {
     id: string;
     channelId: string;
     type: "poll" | "image" | "video" | null;
@@ -33,7 +33,8 @@ interface VideoPayload {
     endedAt?: string;
 }
 
-export interface LiveNotification extends CalenddarNotification<"live", VideoPayload & {wasScheduled: string}> {};
-export interface UpcomingNotification extends CalenddarNotification<"upcoming", VideoPayload> {};
-export interface OfflineNotification extends CalenddarNotification<"offline", VideoPayload> {};
-export interface MovedNotification extends CalenddarNotification<"moved", VideoPayload & {previousScheduledFor: string}> {};
+export interface CalenddarNotification extends CalenddarBaseNotification<any, any> {};
+export interface LiveNotification extends CalenddarBaseNotification<"live", VideoPayload & {wasScheduled: string}> {};
+export interface UpcomingNotification extends CalenddarBaseNotification<"upcoming", VideoPayload> {};
+export interface OfflineNotification extends CalenddarBaseNotification<"offline", VideoPayload> {};
+export interface MovedNotification extends CalenddarBaseNotification<"moved", VideoPayload & {previousScheduledFor: string}> {};
