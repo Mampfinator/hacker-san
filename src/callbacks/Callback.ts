@@ -90,7 +90,7 @@ const executeKey = Symbol("@Execute");
 export const Execute = () => (target: any, name: string) => {
     Reflect.defineMetadata(executeKey, name, target);
 }
-export const getExecute = (target: Constructable) => target.prototype[Reflect.getMetadata(executeKey, target.prototype) ?? "execute"] as (client: HackerSan, notification: CalenddarNotification<any, any>, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
+export const getExecute = (target: Constructable) => target.prototype[Reflect.getMetadata(executeKey, target.prototype) ?? "execute"] as (client: HackerSan, notification: CalenddarNotification, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
 
 
 /* @PreExecute */
@@ -102,12 +102,12 @@ const preExecuteKey = Symbol("@PreExecute");
  * @example
  * \@Callback(...)
  * class ExampleCallback {
- *      execute(client: HackerSan, callback: DbCallback, notification: CalenddarNotifcation<any, any>, vtuber: CalenddarVTuber[]) {
+ *      execute(client: HackerSan, callback: DbCallback, notification: CalenddarNotifcation, vtuber: CalenddarVTuber[]) {
  *          console.log("No matter which guild or channel this callback triggers in, I've got the vtubers right here: ", vtubers);
  *      }
  * 
  *      \@PreExecute()
- *      async fetchVtubers(client: HackerSan, notification: CalenddarNotification<any, any>) {
+ *      async fetchVtubers(client: HackerSan, notification: CalenddarNotification>) {
  *          return Promise.all(notification.vtubers.map(id => client.calenddar.vtubers.fetch(id)));
  *      }
  * }
@@ -115,4 +115,4 @@ const preExecuteKey = Symbol("@PreExecute");
 export const PreExecute = () => (target: any, name: string) => {
     Reflect.defineMetadata(preExecuteKey, name, target);
 }
-export const getPreExecute = (target: Constructable) => target.prototype[Reflect.getMetadata(preExecuteKey, target.prototype) ?? "preExecute"] as (client: HackerSan, notification: CalenddarNotification<any, any>) => any;
+export const getPreExecute = (target: Constructable) => target.prototype[Reflect.getMetadata(preExecuteKey, target.prototype) ?? "preExecute"] as (client: HackerSan, notification: CalenddarNotification) => any;

@@ -10,12 +10,12 @@ import { DbCallback } from "../DbCallback";
 })
 export class Notification{
     @Execute()
-    execute(client: HackerSan, callback: DbCallback, data: CalenddarNotification<any, any>, customData: string): void | Promise<void> {
+    execute(client: HackerSan, callback: DbCallback, data: CalenddarNotification, customData: string): void | Promise<void> {
         
     }
 
     @PreExecute()
-    passData(client: HackerSan, data: CalenddarNotification<any, any>) {
+    passData(client: HackerSan, data: CalenddarNotification) {
         return `I'm custom data!`;
     }
 }

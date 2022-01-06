@@ -66,7 +66,7 @@ suite("Callbacks", () => {
             channel: "undefined",
             guild: "undefined",
             vtuber: "undefined"
-        } as unknown as DbCallback, {} as unknown as CalenddarNotification<any, any>);
+        } as unknown as DbCallback, {} as unknown as CalenddarNotification);
     });
 
 });
