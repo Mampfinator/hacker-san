@@ -1,10 +1,9 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders";
 import { ChannelType } from "discord-api-types";
 import { CommandInteraction } from "discord.js";
-import { CalenddarNotification } from "../calenddar/types";
 import { HackerSan } from "../hacker-san";
 import { Constructable } from "../slash-commands/SlashCommand"
-import { DbCallback } from "./DbCallback";
+import { Callback as DbCallback } from "../orm";
 import { RawMessagePayloadData } from "discord.js/typings/rawDataTypes";
 
 const callbackRegistry = new Set<Constructable>();
@@ -90,7 +89,7 @@ const executeKey = Symbol("@Execute");
 export const Execute = () => (target: any, name: string) => {
     Reflect.defineMetadata(executeKey, name, target);
 }
-export const getExecute = (target: Constructable) => target.prototype[Reflect.getMetadata(executeKey, target.prototype) ?? "execute"] as (client: HackerSan, notification: CalenddarNotification, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
+export const getExecute = (target: Constructable) => target.prototype[Reflect.getMetadata(executeKey, target.prototype) ?? "execute"] as (client: HackerSan, notification: any, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
 
 
 /* @PreExecute */
@@ -115,4 +114,4 @@ const preExecuteKey = Symbol("@PreExecute");
 export const PreExecute = () => (target: any, name: string) => {
     Reflect.defineMetadata(preExecuteKey, name, target);
 }
-export const getPreExecute = (target: Constructable) => target.prototype[Reflect.getMetadata(preExecuteKey, target.prototype) ?? "preExecute"] as (client: HackerSan, notification: CalenddarNotification) => any;
+export const getPreExecute = (target: Constructable) => target.prototype[Reflect.getMetadata(preExecuteKey, target.prototype) ?? "preExecute"] as (client: HackerSan, notification: any) => any;
