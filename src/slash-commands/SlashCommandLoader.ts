@@ -50,8 +50,9 @@ export class SlashCommandLoader {
                     return execute(interaction);
                 },
                 commandData: (() => {
-                    const command = new SlashCommandBuilder().setName(name).setDescription(description);
-                    return builder ? builder(command)! : command // TODO: investiage if calling toJSON here is fine already
+                    let command = new SlashCommandBuilder().setName(name).setDescription(description);
+                    if (builder) command = builder(command)!;
+                    return command;
                 })(),
                 autoDefer: getAutoDefer(constructor)
             });

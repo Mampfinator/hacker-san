@@ -26,7 +26,7 @@ export class HackerSan extends Client {
     }
 
     async login(token?: string) {
-        token = await super.login(token);
+        token = await super.login(token ?? process.env.DISCORD_TOKEN);
 
         this.connection = await createConnection({
             type: "mongodb",

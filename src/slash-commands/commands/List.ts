@@ -31,6 +31,7 @@ export class List {
     buildCommand(builder: SlashCommandBuilder) {
         return builder
         .addSubcommand(callbacks => callbacks
+            .setName("callbacks").setDescription("List callbacks on this server.")
             .addStringOption(vtuber => vtuber.setName("vtuber").setDescription("Filters callbacks by VTuber.").setAutocomplete(true))
             .addChannelOption(channel => channel.setName("channel").setDescription("Filters callbacks by channels."))
             .addStringOption(callbacks => {

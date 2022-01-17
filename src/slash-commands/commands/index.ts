@@ -1,4 +1,4 @@
-import {CallbackCommand} from "./callback/CallbackCommand"
+import {CallbackCommand} from "./CallbackCommand"
 import {List} from "./List"
 
 export const SlashCommands = [

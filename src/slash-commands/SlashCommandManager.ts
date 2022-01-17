@@ -28,6 +28,7 @@ export class SlashCommandManager {
     async register() {
         if (this.client.application?.partial) await this.client.application.fetch();
         for (const {commandData} of this.commands.values()) {
+            console.log(commandData);
             await this.client.application?.commands.create(commandData.toJSON())
         }
     }
