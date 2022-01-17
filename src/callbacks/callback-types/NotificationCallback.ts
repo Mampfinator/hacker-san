@@ -1,8 +1,7 @@
-import { CalenddarNotification } from "../../calenddar/types";
 import { HackerSan } from "../../hacker-san";
 import { Execute } from "../../slash-commands/SlashCommand";
 import { Callback, PreExecute } from "../Callback";
-import { DbCallback } from "../DbCallback";
+import { Callback as DbCallback } from "../../orm";
 
 @Callback({
     name: "notify",
@@ -10,12 +9,12 @@ import { DbCallback } from "../DbCallback";
 })
 export class Notification{
     @Execute()
-    execute(client: HackerSan, callback: DbCallback, data: CalenddarNotification, customData: string): void | Promise<void> {
+    execute(client: HackerSan, callback: DbCallback, data: any, customData: string): void | Promise<void> {
         
     }
 
     @PreExecute()
-    passData(client: HackerSan, data: CalenddarNotification) {
+    passData(client: HackerSan, data: any) {
         return `I'm custom data!`;
     }
 }

@@ -3,6 +3,7 @@ debug
 dist
 .env
 package-lock.json
+*.sqlite
 
 # istanbul things:
 .nyc_output

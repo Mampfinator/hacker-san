@@ -1,15 +1,14 @@
 import { RawMessagePayloadData } from "discord.js/typings/rawDataTypes";
-import { CalenddarNotification } from "../calenddar/types";
 import { Constructable } from "../slash-commands/SlashCommand";
 import { getCallbackRegistry, getDescription, getExecute, getName, getPreExecute } from "./Callback";
 import { CallbackManager } from "./CallbackManager";
-import { DbCallback } from "./DbCallback";
+import { Callback as DbCallback } from "../orm";
 import { HackerSan } from "../hacker-san";
 
 export interface Callback {
     name: string;
-    execute: (client: HackerSan, notification: CalenddarNotification, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
-    preExecute: (client: HackerSan, notification: CalenddarNotification) => any;
+    execute: (client: HackerSan, notification: any, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
+    preExecute: (client: HackerSan, notification: any) => any;
 }
 
 export class CallbackLoader {

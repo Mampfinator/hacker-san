@@ -1,5 +1,5 @@
 import { GuildChannel } from "discord.js";
-import { Model, DataType, DataTypes } from "sequelize/dist";
+import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./sequelize";
 
 export class Callback extends Model {

@@ -4,7 +4,7 @@ import { Builder, Execute, SlashCommand } from "../SlashCommand";
 import {getName, getDescription, getCallbackRegistry, getCustomTriggers, getCustomChannelTypes, getCustomOptions, ChannelOptionChannelTypes} from "../../callbacks/Callback";
 import {CallbackTriggers} from "../../util/constants";
 import { CommandInteraction } from "discord.js";
-import {Callback} from "../../orm";
+import { Callback } from "../../orm";
 
 type DMChannelTypes = ChannelType.DM | ChannelType.GroupDM;
 export type SlashCommandChannelOptionChannelTypes = Exclude<ChannelType, DMChannelTypes>;

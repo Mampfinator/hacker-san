@@ -2,7 +2,7 @@ import { Client, ClientOptions } from "discord.js";
 import { SlashCommandManager } from "./slash-commands/SlashCommandManager";
 import { CallbackManager } from "./callbacks/CallbackManager";
 import type { HackerSanOptions } from "./command-line-optionts"; 
-import { Sequelize } from "sequelize/dist";
+import { Sequelize } from "sequelize";
 import { init } from "./orm";
 
 export class HackerSan extends Client {

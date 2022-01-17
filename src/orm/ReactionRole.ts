@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize/dist";
+import { DataTypes, Model } from "sequelize";
 import { sequelize } from "./sequelize";
 
 export class ReactionRole extends Model {
