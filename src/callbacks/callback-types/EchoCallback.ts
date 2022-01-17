@@ -1,6 +1,6 @@
 import { HackerSan } from "../../hacker-san";
 import { Callback } from "../Callback";
-import { DbCallback } from "../DbCallback";
+import { Callback as DbCallback } from "../../orm";
 
 @Callback({
     name: "echo",
@@ -8,6 +8,6 @@ import { DbCallback } from "../DbCallback";
 })
 export class Echo {
     async execute(client: HackerSan, callback: DbCallback): Promise<void> {
-        const channel = await client.channels.fetch(callback.channel);
+        const channel = await client.channels.fetch(callback.channelId);
     }
 }

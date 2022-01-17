@@ -3,6 +3,7 @@ import { Builder, Execute, SlashCommand } from "../SlashCommand";
 import { makeCallbackTypeList } from "../../util";
 import { CallbackTriggers } from "../../util/constants";
 import { SlashCommandBuilder } from "@discordjs/builders";
+import { Callback } from "../../orm";
 
 @SlashCommand({
     name: "list",
@@ -50,6 +51,7 @@ export class List {
 
 
     async generateCallbacksEmbed(interaction: CommandInteraction): Promise<MessageEmbed> {
-        return new MessageEmbed().setDescription("Hi!");
+        const callbacks = await Callback.findAll({where: {guildId: interaction.guildId}});
+        return new MessageEmbed().setTitle("Hi!").setDescription(callbacks.map(callback => JSON.stringify(callback.toJSON())).join("\n"));
     }
 }

@@ -4,7 +4,7 @@ import { Builder, Execute, SlashCommand } from "../SlashCommand";
 import {getName, getDescription, getCallbackRegistry, getCustomTriggers, getCustomChannelTypes, getCustomOptions, ChannelOptionChannelTypes} from "../../callbacks/Callback";
 import {CallbackTriggers} from "../../util/constants";
 import { CommandInteraction } from "discord.js";
-import { DbCallback } from "../../callbacks/DbCallback";
+import {Callback} from "../../orm";
 
 type DMChannelTypes = ChannelType.DM | ChannelType.GroupDM;
 export type SlashCommandChannelOptionChannelTypes = Exclude<ChannelType, DMChannelTypes>;
@@ -43,11 +43,8 @@ export class CallbackCommand {
         const {guildId} = interaction;
         const callbackIds = (interaction.options.get("id")?.value! as string).split(",");
 
-        const removeCallbacks = await DbCallback.find({where: {guildId, _id: {$in: callbackIds}}});
-        await DbCallback.remove(removeCallbacks);
-
-        
-
+        const removeCallbacks = await Callback.findAll({where: {id: callbackIds}});
+        await Callback.destroy({where: {id: callbackIds}})
     }
 
     @Builder()

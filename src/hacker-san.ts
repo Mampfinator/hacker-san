@@ -1,15 +1,15 @@
 import { Client, ClientOptions } from "discord.js";
 import { SlashCommandManager } from "./slash-commands/SlashCommandManager";
-import { Connection, createConnection } from "typeorm";
 import { CallbackManager } from "./callbacks/CallbackManager";
 import type { HackerSanOptions } from "./command-line-optionts"; 
+import { Sequelize } from "sequelize/dist";
+import { init } from "./orm";
 
 export class HackerSan extends Client {
     readonly commands: SlashCommandManager;
     readonly settings?: unknown;
     readonly callbacks: CallbackManager;
-    connection?: Connection;
-    
+    sequelize?: Sequelize;
     private readonly noCommands?: boolean;
 
 
@@ -26,17 +26,12 @@ export class HackerSan extends Client {
     }
 
     async login(token?: string) {
-        token = await super.login(token ?? process.env.DISCORD_TOKEN);
+        await init(this);
 
-        this.connection = await createConnection({
-            type: "mongodb",
-            database: "hacker-san",
-            url: process.env.MONGODB_URI,
-        });
+        token = await super.login(token ?? process.env.DISCORD_TOKEN);
 
         await this.application?.fetch();
         if (!this.noCommands) await this.commands.register();
-        //await this.settings.sync();
 
         return token;
     }
