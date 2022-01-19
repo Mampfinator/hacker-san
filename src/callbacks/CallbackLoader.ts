@@ -4,11 +4,12 @@ import { getCallbackRegistry, getDescription, getExecute, getName, getPreExecute
 import { CallbackManager } from "./CallbackManager";
 import { Callback as DbCallback } from "../orm";
 import { HackerSan } from "../hacker-san";
+import { Notification } from "calenddar-client";
 
 export interface Callback {
     name: string;
-    execute: (client: HackerSan, notification: any, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
-    preExecute: (client: HackerSan, notification: any) => any;
+    execute: (client: HackerSan, notification: Notification, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
+    preExecute: (client: HackerSan, notification: Notification) => any;
 }
 
 export class CallbackLoader {

@@ -12,7 +12,7 @@ import { Callback } from "../../orm";
 export class List {
     
     @Execute()
-    async executeButDifferentName(interaction: CommandInteraction<CacheType>): Promise<MessageEmbed> {
+    async execute(interaction: CommandInteraction<CacheType>): Promise<MessageEmbed> {
         const target = interaction.options.getSubcommand();
 
         let embed = new MessageEmbed().setDescription("404");
@@ -41,8 +41,10 @@ export class List {
                     .setName("callbacks").setDescription("Filters callbacks by type.")
                     .setChoices(callbackList);
             })
-            .addStringOption(trigger => 
-                trigger.setChoices(
+            .addStringOption(trigger => trigger
+                .setName("trigger")
+                .setDescription("Filters by trigger")
+                .setChoices(
                     CallbackTriggers.map(t => [t, t] as [string, string])
                 )
             )
@@ -52,6 +54,6 @@ export class List {
 
     async generateCallbacksEmbed(interaction: CommandInteraction): Promise<MessageEmbed> {
         const callbacks = await Callback.findAll({where: {guildId: interaction.guildId}});
-        return new MessageEmbed().setTitle("Hi!").setDescription(callbacks.map(callback => JSON.stringify(callback.toJSON())).join("\n"));
+        return new MessageEmbed().setTitle(`Listing ${callbacks.length} callbacks for ${interaction.guild?.name}`).setDescription(callbacks.map(callback => JSON.stringify(callback.toJSON())).join("\n"));
     }
 }

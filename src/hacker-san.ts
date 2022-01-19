@@ -1,4 +1,5 @@
 import { Client, ClientOptions } from "discord.js";
+import { Client as CalenddarClient } from "calenddar-client";
 import { SlashCommandManager } from "./slash-commands/SlashCommandManager";
 import { CallbackManager } from "./callbacks/CallbackManager";
 import type { HackerSanOptions } from "./command-line-optionts"; 
@@ -9,6 +10,7 @@ export class HackerSan extends Client {
     readonly commands: SlashCommandManager;
     readonly settings?: unknown;
     readonly callbacks: CallbackManager;
+    readonly calenddar: CalenddarClient;
     sequelize?: Sequelize;
     private readonly noCommands?: boolean;
 
@@ -23,6 +25,7 @@ export class HackerSan extends Client {
         });
 
         this.noCommands = options["no-commands"];
+        this.calenddar = new CalenddarClient();
     }
 
     async login(token?: string) {
@@ -32,6 +35,8 @@ export class HackerSan extends Client {
 
         await this.application?.fetch();
         if (!this.noCommands) await this.commands.register();
+
+        await this.calenddar.start();
 
         return token;
     }

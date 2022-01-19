@@ -3,7 +3,7 @@ import { ChannelType } from "discord-api-types";
 import { Builder, Execute, SlashCommand } from "../SlashCommand";
 import {getName, getDescription, getCallbackRegistry, getCustomTriggers, getCustomChannelTypes, getCustomOptions, ChannelOptionChannelTypes} from "../../callbacks/Callback";
 import {CallbackTriggers} from "../../util/constants";
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 import { Callback } from "../../orm";
 
 type DMChannelTypes = ChannelType.DM | ChannelType.GroupDM;
@@ -31,6 +31,42 @@ export class CallbackCommand {
 
 
     private async addCallback(interaction: CommandInteraction) {
+        const {guildId, options} = interaction;
+
+        // get values here
+        const   type    = options.getSubcommand(),
+                channelId = options.getChannel("channel")!.id,
+                trigger = options.getString("trigger"),
+                vtuber  = options.getString("vtuber");
+
+        const callback = await Callback.create({
+            type,
+            guildId,
+            channelId,
+            trigger,
+            vtuber
+        }).catch(console.error);
+
+        // callback creation failed.
+        if (!callback) return await interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setTitle("Callback creation failed!")
+                    .setColor("RED")
+                    .setDescription("Please contact the bot author. Or don't.")
+            ]
+        });
+
+        const {name, value} = callback.toField();
+        await interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setTitle("Created new callback!")
+                    .setColor("GREEN")
+                    .addField(name, value)
+            ]
+        })
+
 
     }
 
@@ -47,31 +83,31 @@ export class CallbackCommand {
         await Callback.destroy({where: {id: callbackIds}})
     }
 
+    private fillDefaultOptions(sub: SlashCommandSubcommandBuilder, customTriggers?: string[], customTypes?: ChannelOptionChannelTypes[]) {
+        return sub
+            .addStringOption(vtuber => vtuber
+                .setName("vtuber")
+                .setDescription("VTuber this callback is for.")
+                .setRequired(true)
+                .setAutocomplete(true))
+            .addStringOption(trigger => trigger
+                .setName("trigger")
+                .setDescription("Which event this callback should trigger on.")
+                .setRequired(true)
+                .setChoices((customTriggers ?? CallbackTriggers).map(name => [name, name] as [string, string])))
+            .addChannelOption(channel => channel
+                .setName("channel")
+                .setDescription("Channel this callback acts in/on.")
+                .setRequired(true)
+                .addChannelTypes(customTypes ?? [
+                    ChannelType.GuildText,
+                    ChannelType.GuildNews,
+                    ChannelType.GuildPublicThread
+            ]))
+    }
+
     @Builder()
     buildCommand(builder: SlashCommandBuilder) {
-        
-        const defaultOptions = (sub: SlashCommandSubcommandBuilder, customTriggers?: string[], customTypes?: ChannelOptionChannelTypes[]) =>
-            sub
-                .addStringOption(vtuber => vtuber
-                    .setName("vtuber")
-                    .setDescription("VTuber this callback is for.")
-                    .setRequired(true)
-                    .setAutocomplete(true))
-                .addStringOption(trigger => trigger
-                    .setName("trigger")
-                    .setDescription("Which event this callback should trigger on.")
-                    .setRequired(true)
-                    .setChoices((customTriggers ?? CallbackTriggers).map(name => [name, name] as [string, string])))
-                .addChannelOption(channel => channel
-                    .setName("channel")
-                    .setDescription("Channel this callback acts in/on.")
-                    .setRequired(true)
-                    .addChannelTypes(customTypes ?? [
-                        ChannelType.GuildText,
-                        ChannelType.GuildNews,
-                        ChannelType.GuildPublicThread
-                    ]))
-    
         return builder
             .addSubcommandGroup(add => {
                 add = add.setName("add").setDescription("Add a new callback");
@@ -83,7 +119,7 @@ export class CallbackCommand {
                     const customOptions = getCustomOptions(type);
     
                     add.addSubcommand(subcommand => {
-                        subcommand = defaultOptions(subcommand, customTriggers, customChannelTypes).setName(name).setDescription(description)
+                        subcommand = this.fillDefaultOptions(subcommand, customTriggers, customChannelTypes).setName(name).setDescription(description)
                         if (customOptions) subcommand = customOptions(subcommand);
                         return subcommand;
                     });
