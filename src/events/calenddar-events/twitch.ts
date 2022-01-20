@@ -6,6 +6,7 @@ export const AnyTwitch = {
     name: "*.twitch",
     once: false,
     async execute(notification: Notification, client: HackerSan) {
+        console.log("Got a Twitch event!");
         client.callbacks.handle(notification);
     }
 } as IEvent;

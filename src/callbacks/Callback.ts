@@ -12,43 +12,50 @@ export const removeCallback = (target: Constructable) => {
     const name = getName(target);
     callbackRegistry.delete(target);
     return name;
-} 
-// TODO: pull methods out from @Callback and put them into separate method decorators.
+}
 
 /* @Callback */
-
-
 const nameKey = Symbol("@Callback - name");
 const descriptionKey = Symbol("@Callback - description");
 const optionTransformerKey = Symbol("@Callback - optionTransformer");
 const customTriggersKey = Symbol("@Callback - customTriggers"); 
 const customChannelTypesKey = Symbol("@Callback - customChannelTypes");
-const customOptionsKey = Symbol("@Callback - customOptions");
+const makeDataKey = Symbol("@Callback - makeData");
 
 export type ChannelOptionChannelTypes = Exclude<ChannelType, ChannelType.DM | ChannelType.GroupDM>;
 
 export interface CallbackOptions {
+    
     /**
      * name of the callback
      */
     name: string;
+    
     /**
      * the callback's description.
      */
     description: string;
+    
     /**
      * Restrict the callback's execution to certain Calenddar events.
      * If empty array is provided, will skip automatic `trigger` argument generation.
      */
     customTriggers?: string[];
+    
     /**
      * Restrict the callback's channel to certain channel types (for example, configure a `lock` callback to exclude execution on threads.)
      */
     customChannelTypes?: ChannelOptionChannelTypes[];
+    
     /**
      * Add custom options to the `/callback add` command.
      */
-    customOptions?: (subcommand: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder
+    //customOptions?: (subcommand: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder,
+
+    /**
+     * 
+     */
+    makeData?(interaction: CommandInteraction): Record<string, any>;
 }
 
 export const Callback = (options: CallbackOptions) => (target: Constructable) => {
@@ -59,7 +66,7 @@ export const Callback = (options: CallbackOptions) => (target: Constructable) =>
     Reflect.defineMetadata(descriptionKey, options.description, target);
     if (options.customTriggers) Reflect.defineMetadata(customTriggersKey, options.customTriggers, target);
     if (options.customChannelTypes) Reflect.defineMetadata(customChannelTypesKey, options.customChannelTypes, target);
-    if (options.customOptions) Reflect.defineMetadata(customOptionsKey, options.customOptions, target);
+    if (options.makeData) Reflect.defineMetadata(makeDataKey, options.makeData, target);
 
     callbackRegistry.add(target);
 }
@@ -79,7 +86,7 @@ export const getDescription = (target: Constructable) => Reflect.getMetadata(des
 export const getOptionTransformer = (target: Constructable) => Reflect.getMetadata(optionTransformerKey, target) as (interaction: CommandInteraction) => Record<string, any>;
 export const getCustomTriggers = (target: Constructable) => Reflect.getMetadata(customTriggersKey, target) as string[];
 export const getCustomChannelTypes = (target: Constructable) => Reflect.getMetadata(customChannelTypesKey, target) as ChannelOptionChannelTypes[];
-export const getCustomOptions = (target: Constructable) => Reflect.getMetadata(customOptionsKey, target) as (subcommand: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder;
+export const getMakeData = (target: Constructable) => Reflect.getMetadata(makeDataKey, target) as ((interaction: CommandInteraction) => Record<string, any>) | undefined; 
 
 /* @Execute */
 const executeKey = Symbol("@Execute");
@@ -115,3 +122,14 @@ export const PreExecute = () => (target: any, name: string) => {
     Reflect.defineMetadata(preExecuteKey, name, target);
 }
 export const getPreExecute = (target: Constructable) => target.prototype[Reflect.getMetadata(preExecuteKey, target.prototype) ?? "preExecute"] as (client: HackerSan, notification: any) => any;
+
+
+/* @CustomOptions */
+const customOptionsKey = Symbol("@CustomOptions");
+/**
+ * Used to extend the slash command options available when using `/callback add [type]`.
+ */
+export const CustomOptions = () => (target: any, name: string) => {
+    Reflect.defineMetadata(customOptionsKey, name, target);
+}
+export const getCustomOptions = (target: Constructable) => target.prototype[Reflect.getMetadata(customOptionsKey, target.prototype) ?? "customOptions"] as ((subcommand: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder) | undefined;

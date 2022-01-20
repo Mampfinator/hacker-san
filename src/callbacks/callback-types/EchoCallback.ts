@@ -1,24 +1,39 @@
 import { HackerSan } from "../../hacker-san";
-import { Callback } from "../Callback";
+import { Callback, CustomOptions } from "../Callback";
 import { Callback as DbCallback } from "../../orm";
 import { Builder, Execute } from "../../slash-commands/SlashCommand";
 import { SlashCommandBuilder } from "@discordjs/builders";
+import { GuildTextBasedChannel } from "discord.js";
+import { interpolate } from "../../util";
+import { Notification } from "calenddar-client";
 
 @Callback({
     name: "echo",
-    description: "Send a message!"
+    description: "Send a message!",
+    makeData(interaction) {
+        const message = interaction.options.getString("message");
+        return {
+            message
+        };
+    }
 })
 export class Echo {
     @Execute()
-    async execute(client: HackerSan, callback: DbCallback): Promise<void> {
-        const channel = await client.channels.fetch(callback.channelId);
+    async execute(client: HackerSan, notification: Notification, callback: DbCallback, preExecute: any): Promise<void> {
+        const {channel} = preExecute;
+        const typeData = callback.getTypeData() as Record<string, string>;
+        const {message} = typeData;
+
+        await channel.send({
+            content: interpolate(message, {})
+        });
     }
 
-    @Builder()
+    @CustomOptions()
     extendOptions(builder: SlashCommandBuilder) {
         return builder.addStringOption(message => message
             .setName("message")
-            .setDescription("Message to be sent to the channel.")    
-        )
+            .setDescription("Message to be sent to the channel. Supports {{templates}}.")
+            .setRequired(true));
     }
 }

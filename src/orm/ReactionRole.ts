@@ -9,6 +9,13 @@ export class ReactionRole extends Model {
 
 ReactionRole.init(
     {
+        id: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            unique: true, 
+            primaryKey: true,
+            allowNull: false
+        },
         guildId: DataTypes.STRING,
         emojiId: DataTypes.STRING,
         type: DataTypes.STRING

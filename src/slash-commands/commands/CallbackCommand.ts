@@ -1,10 +1,12 @@
 import { SlashCommandBuilder, SlashCommandSubcommandBuilder } from "@discordjs/builders";
 import { ChannelType } from "discord-api-types";
-import { Builder, Execute, SlashCommand } from "../SlashCommand";
-import {getName, getDescription, getCallbackRegistry, getCustomTriggers, getCustomChannelTypes, getCustomOptions, ChannelOptionChannelTypes} from "../../callbacks/Callback";
-import {CallbackTriggers} from "../../util/constants";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import { Builder, CanExecute, Execute, SlashCommand } from "../SlashCommand";
+import { getName, getDescription, getCallbackRegistry, getCustomTriggers, getCustomChannelTypes, getCustomOptions, ChannelOptionChannelTypes} from "../../callbacks/Callback";
+import { CallbackTriggers } from "../../util/constants";
+import { CommandInteraction, MessageEmbed, ThreadChannel } from "discord.js";
 import { Callback } from "../../orm";
+import { HackerSan } from "../../hacker-san";
+import { admin, canExecuteHelper, mod } from "../../util/canExecute";
 
 type DMChannelTypes = ChannelType.DM | ChannelType.GroupDM;
 export type SlashCommandChannelOptionChannelTypes = Exclude<ChannelType, DMChannelTypes>;
@@ -29,22 +31,50 @@ export class CallbackCommand {
         return response;
     }
 
+    @CanExecute()
+    async canExecute(interaction: CommandInteraction): Promise<boolean> {
+        const executable = await canExecuteHelper(interaction,
+            admin,
+            mod     
+        )
+
+        return executable;
+    }
 
     private async addCallback(interaction: CommandInteraction) {
-        const {guildId, options} = interaction;
+        const { guildId, options } = interaction;
 
         // get values here
         const   type    = options.getSubcommand(),
-                channelId = options.getChannel("channel")!.id,
-                trigger = options.getString("trigger"),
-                vtuber  = options.getString("vtuber");
+                channel = options.getChannel("channel")!,
+                trigger = options.getString("trigger")!,
+                vtuber  = options.getString("vtuber")!,
+                delay   = options.getNumber("delay") ?? 0,
+                priority = options.getInteger("priority") ?? 0;
+
+        
+        const {makeData} = (interaction.client as HackerSan).callbacks.callbacks.get(type)!;
+
+        const typeData = typeof makeData === "function" ? (makeData(interaction) ?? {}) : {};
+
+        let threadId: string | undefined, channelId: string;
+        if ((channel.type as string).includes("_THREAD")) {
+            channelId = (channel as ThreadChannel).parentId!;
+            threadId = channel.id;
+        } else {
+            channelId = channel.id;
+        }
 
         const callback = await Callback.create({
             type,
             guildId,
             channelId,
+            threadId: threadId ?? null,
             trigger,
-            vtuber
+            vtuber,
+            delay, 
+            priority,
+            typeData: Callback.toTypeData(typeData)
         }).catch(console.error);
 
         // callback creation failed.
@@ -102,8 +132,7 @@ export class CallbackCommand {
                 .addChannelTypes(customTypes ?? [
                     ChannelType.GuildText,
                     ChannelType.GuildNews,
-                    ChannelType.GuildPublicThread
-            ]))
+                    ChannelType.GuildPublicThread]))
     }
 
     @Builder()
@@ -121,6 +150,18 @@ export class CallbackCommand {
                     add.addSubcommand(subcommand => {
                         subcommand = this.fillDefaultOptions(subcommand, customTriggers, customChannelTypes).setName(name).setDescription(description)
                         if (customOptions) subcommand = customOptions(subcommand);
+
+                        subcommand = subcommand
+                            .addNumberOption(delay => delay
+                                .setName("delay")
+                                .setDescription("Delay (in seconds) before the next callback in this channel (including threads) is executed.")
+                                .setMinValue(0)
+                                .setMaxValue(300))
+                            .addIntegerOption(priority => priority
+                                .setName("priority")
+                                .setDescription("The higher the priority, the earlier a callback is executed in the chain within a channel.")
+                                .setMinValue(0))
+
                         return subcommand;
                     });
                 }
@@ -133,6 +174,7 @@ export class CallbackCommand {
                     .setName("ids")
                     .setDescription("Comma-separated IDs of callbacks to remove.")
                     .setRequired(true)))
+            // TODO: actually implement
             .addSubcommand(edit => edit
                 .setName("edit").setDescription("Edit a callback.").addStringOption(id => id
                     .setName("id")

@@ -46,7 +46,7 @@ export class SlashCommandLoader {
             commands.add({
                 name,
                 execute: async (interaction: CommandInteraction) => {
-                    if (!(await canExecute(interaction))) return;
+                    if (!(await canExecute(interaction))) return new MessageEmbed().setTitle("Permission error").setDescription("You don't have the permission(s) required to do that!").setColor("RED");
                     return execute(interaction);
                 },
                 commandData: (() => {

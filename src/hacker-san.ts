@@ -30,14 +30,13 @@ export class HackerSan extends Client {
 
     async login(token?: string) {
         await init(this);
+        await this.application?.fetch();
+        
+        await this.calenddar.start();
+        this.callbacks.load();
 
         token = await super.login(token ?? process.env.DISCORD_TOKEN);
-
-        await this.application?.fetch();
         if (!this.noCommands) await this.commands.register();
-
-        await this.calenddar.start();
-
         return token;
     }
 }

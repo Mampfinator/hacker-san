@@ -5,6 +5,14 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./sequelize";
 
 export class Callback extends Model {
+    static toTypeData(data: Record<string, any>) {
+        try {
+            return JSON.stringify(data);
+        } catch {
+            return "{}"
+        }
+    };
+
     /**
      * Unique callback ID.
      */
@@ -22,6 +30,10 @@ export class Callback extends Model {
      */
     channelId!: string;
     /**
+     * ID of the thread this callback should be executed in, if any.
+     */
+    threadId!: string;
+    /**
      * ID of the VTuber this callback should trigger on.
      */
     vtuber!: string;
@@ -33,8 +45,9 @@ export class Callback extends Model {
      * 
      */
     delay?: number;
+    priority?: number;
     platform?: CalenddarPlatform;
-
+    typeData?: string;
 
     /**
      * @returns a Discord API embed field
@@ -60,6 +73,19 @@ export class Callback extends Model {
         this.trigger = trigger;
         return this;
     }
+
+    getTypeData(): Record<string, any> {
+        if (!this.typeData) return {};
+
+        try { return JSON.parse(this.typeData!); } 
+        catch {return {}}
+    }
+
+    setTypeData(data: Record<string, any> | string) {
+        if (typeof data === "string") this.typeData = data;
+        else this.typeData = Callback.toTypeData(data);
+    }
+
 }
 Callback.init(
     {
@@ -70,15 +96,39 @@ Callback.init(
             defaultValue: DataTypes.UUIDV4,
             allowNull: false
         },
-        type: DataTypes.STRING,
-        guildId: DataTypes.STRING,
-        channelId: DataTypes.STRING,
-        vtuber: DataTypes.STRING,
-        trigger: DataTypes.STRING,
+
+        /* execution-relevant details */
+        type: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        guildId: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        channelId: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+
+        /* trigger discriminators */
+        vtuber: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        trigger: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+
+        /* optionals */
+        threadId: DataTypes.STRING, // Thread ID, if any
         delay: {
             type: DataTypes.NUMBER({unsigned: true, }),
             defaultValue: 0
-        }
+        },
+        priority: DataTypes.INTEGER,
+        typeData: DataTypes.STRING // stores type-specific data as JSON
     },
     {
         sequelize,

@@ -26,18 +26,22 @@ export class SlashCommandManager {
     }
 
     async register() {
+        console.log(`Registering ${this.commands.size} commands. (${[...this.commands.values()].map(command => command.name).join(", ")})`);
+
         if (this.client.application?.partial) await this.client.application.fetch();
+        if (!this.client.application) throw new Error("Client doesn't have an application! Can't register slash commands!");
+
+        if (process.env.NODE_ENV !== "production" && process.env.DEBUG_GUILD_ID) var guildId = process.env.DEBUG_GUILD_ID;
         for (const {commandData} of this.commands.values()) {
-            await this.client.application?.commands.create(commandData.toJSON())
+            console.log(`Registering ${commandData.name}.`);
+            await this.client.application?.commands.create(commandData.toJSON(), guildId!)
         }
     }
 
     async execute(interaction: CommandInteraction) {
         const {commandName: name} = interaction;
-
         const command = this.commands.get(name);
         if (!command) throw new CommandNotFoundError(interaction);
-        
         if (command.autoDefer) await interaction.deferReply();
         
         return await command.execute(interaction);

@@ -89,6 +89,7 @@ const executeKey = Symbol("@Execute");
 /**
  * Sets this method as main execution method for this command.
  */
+// TODO: include CanExecute here!
 export const Execute = () => (target: any, name: string) => {
     Reflect.defineMetadata(executeKey, name, target);
 }

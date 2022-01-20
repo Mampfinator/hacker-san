@@ -1,6 +1,12 @@
 import { Echo } from "./EchoCallback";
-import { Notification } from "./NotificationCallback";
+import { Lock } from "./LockCallback";
+import { Notify } from "./NotifyCallback";
+import { Post } from "./PostCallback";
+import { Rename } from "./RenameCallback";
 export const CallbackTypes = [
     Echo, 
-    Notification
+    Notify,
+    Post,
+    Lock,
+    Rename
 ];

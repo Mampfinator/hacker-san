@@ -6,6 +6,7 @@ export const AnyYouTube = {
     name: "*.youtube",
     once: false,
     async execute(notification: Notification, client: HackerSan) {
+        console.log("Got a YouTube event!");
         client.callbacks.handle(notification);
     }
 } as IEvent;
