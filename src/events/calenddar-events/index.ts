@@ -1,9 +1,9 @@
-import { AnyTwitch } from "./twitch";
+import { RelayTwitchNotification } from "./twitch";
 import { WelcomeCalenddarEvent } from "./welcome";
-import { AnyYouTube } from "./youtube";
+import { RelayYouTubeNotification } from "./youtube";
 
 export const CalenddarEvents = [
     WelcomeCalenddarEvent,
-    //AnyTwitch,
-    //AnyYouTube,
+    RelayTwitchNotification,
+    RelayYouTubeNotification,
 ];
