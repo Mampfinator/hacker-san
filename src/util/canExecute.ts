@@ -28,6 +28,6 @@ export const mod = async (interaction: CommandInteraction): Promise<boolean> => 
         "MANAGE_GUILD",
         "BAN_MEMBERS",
         "MANAGE_CHANNELS",
-    ]) || includesAny(settings.getModRoles(), [...(interaction.member!.roles as GuildMemberRoleManager).cache.keys()])
+    ]) || includesAny(settings.roles.get(), [...(interaction.member!.roles as GuildMemberRoleManager).cache.keys()])
 } 
 export const botOwner = (interaction: CommandInteraction): boolean => (interaction.user.id === process.env.BOT_OWNER);

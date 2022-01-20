@@ -2,7 +2,7 @@ import { HackerSan } from "../hacker-san";
 import { addAutocomplete } from "./autocomplete";
 
 addAutocomplete({
-    optionAliases: ["vtuber"],
+    optionAliases: ["vtuber", "add_vtuber", "remove_vtuber"],
     async execute(interaction, input: string) {
         if (input.length < 3) return [];
         
