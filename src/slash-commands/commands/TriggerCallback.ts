@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { Notification } from "calenddar-client";
 import { CalenddarEvent } from "calenddar-client/dist/structures/Notification";
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 import { HackerSan } from "../../hacker-san";
 import { Builder, Execute, SlashCommand } from "../SlashCommand";
 
@@ -14,23 +14,20 @@ export class TriggerCallback {
     async execute(interaction: CommandInteraction) {
         const   trigger = interaction.options.getString("trigger")! as CalenddarEvent,
                 vtuberId = interaction.options.getString("vtuber")!,
-                payload = interaction.options.getString("payload")!
+                payload = interaction.options.getString("payload")!;
 
-        const data = JSON.stringify(payload);
-
-        const notification = new Notification((interaction.client as HackerSan).calenddar, {
+        const message = JSON.stringify({
             event: trigger,
             vtubers: [vtuberId],
             platform: "youtube",
-            data
-        });
+            data: payload ?? {}
+        }, null, 4);
 
-        await notification.fetchVtubers()
-        console.log(notification);
+        (interaction.client as HackerSan).calenddar.ws.emit("message", message);
+        return new MessageEmbed()
+            .setDescription(`\`\`\`\n${message}\n\`\`\``)
+            .setColor("GREEN");
 
-        await (interaction.client as HackerSan).callbacks.handle(notification);
-
-        return ":YuraPolite:";
     }
 
     @Builder()

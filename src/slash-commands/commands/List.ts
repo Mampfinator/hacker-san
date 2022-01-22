@@ -54,6 +54,7 @@ export class List {
 
     async generateCallbacksEmbed(interaction: CommandInteraction): Promise<MessageEmbed> {
         const callbacks = await Callback.findAll({where: {guildId: interaction.guildId}});
-        return new MessageEmbed().setTitle(`Listing ${callbacks.length} callbacks for ${interaction.guild?.name}`).setDescription(callbacks.map(callback => JSON.stringify(callback.toJSON())).join("\n"));
+        const embed = new MessageEmbed().setTitle(`Listing ${callbacks.length} callbacks for ${interaction.guild?.name}`).setFields(...callbacks.map(c => c.toField()));
+        return embed;
     }
 }

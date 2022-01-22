@@ -19,7 +19,7 @@ import { Notification } from "calenddar-client";
 })
 export class Echo {
     @Execute()
-    async execute(client: HackerSan, notification: Notification, callback: DbCallback, preExecute: any): Promise<void> {
+    async execute(client: HackerSan, notification: Notification, callback: DbCallback, preExecute: any) {
         const {channel} = preExecute;
         const typeData = callback.getTypeData() as Record<string, string>;
         const {message} = typeData;
@@ -27,6 +27,9 @@ export class Echo {
         await channel.send({
             content: interpolate(message, {})
         });
+
+        console.log("In EchoCallback: :reinyheh:");
+        return "reinyheh";
     }
 
     @CustomOptions()

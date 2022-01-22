@@ -18,7 +18,12 @@ export type SlashCommandChannelOptionChannelTypes = Exclude<ChannelType, DMChann
 export class CallbackCommand {
     @Execute()
     async execute(interaction: CommandInteraction) {
-        const mode = interaction.options.getSubcommandGroup()
+        let mode!: string;
+        try {
+            mode = interaction.options.getSubcommandGroup()
+        } catch {
+            mode = interaction.options.getSubcommand()
+        }
 
         var response;
 
@@ -33,12 +38,10 @@ export class CallbackCommand {
 
     @CanExecute()
     async canExecute(interaction: CommandInteraction): Promise<boolean> {
-        const executable = await canExecuteHelper(interaction,
+        return canExecuteHelper(interaction,
             admin,
             mod     
         )
-
-        return executable;
     }
 
     private async addCallback(interaction: CommandInteraction) {
@@ -95,9 +98,7 @@ export class CallbackCommand {
                     .setColor("GREEN")
                     .addField(name, value)
             ]
-        })
-
-
+        });
     }
 
 
@@ -107,10 +108,15 @@ export class CallbackCommand {
 
     private async removeCallback(interaction: CommandInteraction) {
         const {guildId} = interaction;
-        const callbackIds = (interaction.options.get("id")?.value! as string).split(",");
+        const callbackIds = interaction.options.getString("ids")!.split(",");
 
         const removeCallbacks = await Callback.findAll({where: {id: callbackIds}});
         await Callback.destroy({where: {id: callbackIds}})
+
+        const embed = new MessageEmbed()
+            .setColor("RED")
+            .setTitle("Removed callbacks")
+            .addFields(removeCallbacks.map(callback => callback.toField()))
     }
 
     private fillDefaultOptions(sub: SlashCommandSubcommandBuilder, customTriggers?: string[], customTypes?: ChannelOptionChannelTypes[]) {
@@ -132,7 +138,9 @@ export class CallbackCommand {
                 .addChannelTypes(customTypes ?? [
                     ChannelType.GuildText,
                     ChannelType.GuildNews,
-                    ChannelType.GuildPublicThread]))
+                    ChannelType.GuildPublicThread,
+                    ChannelType.GuildPrivateThread
+                ]))
     }
 
     @Builder()

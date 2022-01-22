@@ -81,23 +81,29 @@ export class CallbackManager {
         for (const callback of callbacks) {
             // potential Discord.js type error? Shown to return {threads: Collection<Snowflake, ThreadChannel>, hasMore: boolean} instead of typed ThreadChannel | null.
             const thread = await channel.threads.fetch(callback.threadId).catch();
-            await this.execute(callback, notification, {...preExecute, guild, channel: thread && thread.isThread && thread.isThread() ? thread : channel})
+            const result = await this.execute(callback, notification, {...preExecute, guild, channel: thread && thread.isThread && thread.isThread() ? thread : channel})
                 .catch(ignore(DAPIErrors));
+
+            console.log(result);
         }
     }
 
 
     async execute(callback: DbCallback, notification: Notification, preExecuteData?: any) {
-        const {type} = callback;
+        const { type } = callback;
         const callbackType = this.callbacks.get(type);
         if (!callbackType) throw new UnknownCallbackTypeError(type);
 
         // return Promise that resolves whenever the delay is up & execution has finished
-        if (callback.delay && callback.delay > 0) return new Promise<void>(res => setTimeout(async () => {
-            await callbackType.execute(this.client, notification, callback, preExecuteData).catch();
-            res();
-        }, callback!.delay ?? 0 * 1000));
-        
+        if (callback.delay && callback.delay > 0) {
+            console.log(`Got callback delay of ${callback.delay}s.`)
+            console.time(`callback_${callback.id}`);
+            return new Promise<void>(res => setTimeout(async () => {
+                console.timeEnd(`callback_${callback.id}`);
+                await callbackType.execute(this.client, notification, callback, preExecuteData).catch();
+                res();
+            }, callback.delay! * 1000));
+        }
         // return after callback has been executed
         await callbackType.execute(this.client, notification, callback, preExecuteData);
     }

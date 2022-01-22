@@ -10,7 +10,7 @@ import { CommandInteraction } from "discord.js";
 
 export interface Callback {
     name: string;
-    execute: (client: HackerSan, notification: Notification, callback: DbCallback, preExecuteData?: any) => Promise<RawMessagePayloadData>;
+    execute: (client: HackerSan, notification: Notification, callback: DbCallback, preExecuteData?: any) => Promise<any>;
     preExecute?: (client: HackerSan, notification: Notification) => any;
     makeData?: (builder: CommandInteraction) => Record<string, any>;
 }
@@ -42,8 +42,8 @@ export class CallbackLoader {
 
             callbacks.add({
                 name,
-                execute,
-                preExecute,
+                execute: (client, notification, callback, preExecute) => Reflect.apply(execute, executor, [client, notification, callback, preExecute]),
+                preExecute: preExecute ? (client, notification) => Reflect.apply(preExecute, executor, [client, notification]) : undefined,
                 makeData
             });
         }
