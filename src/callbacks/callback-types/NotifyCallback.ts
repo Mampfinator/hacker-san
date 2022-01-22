@@ -30,7 +30,7 @@ export class Notify{
 
 
     @Execute()
-    async execute(client: HackerSan, callback: DbCallback, notification: Notification, preExecuteData?: any): Promise<void> {
+    async execute(client: HackerSan, notification: Notification, callback: DbCallback, preExecuteData?: any): Promise<void> {
         const {pingRole, message, customEmbed} = (callback.getTypeData() as {message?: string, customEmbed?: boolean, pingRole?: string});
         const {embed, channel} = preExecuteData as {embed: MessageEmbed, channel: GuildTextBasedChannel};
 
@@ -41,7 +41,6 @@ export class Notify{
         if (customEmbed) payload.embeds = [embed];
 
         await channel.send(payload);
-
     }
 
     @PreExecute()
